@@ -1,1 +1,33 @@
-/* You can add global styles to this file, and also import other style files */
+@use "sass:map";
+@use "bootstrap/scss/functions";
+
+// Step 1: Manually define Bootstrap's default theme-colors
+$default-theme-colors: (
+    "primary": #0d6efd,
+    "secondary": #6c757d,
+    "success": #198754,
+    "info": #0dcaf0,
+    "warning": #ffc107,
+    "danger": #dc3545,
+    "light": #f8f9fa,
+    "dark": #212529
+);
+
+// Step 2: Define your overrides
+$custom-colors: (
+    "primary": #63C8FF,
+    "secondary": #95E1D3,
+    "warning": #FCE38A,
+    "danger": #F38181,
+    "success": #DEE791,
+    "info": #7C77B9,
+    "light": #F9F3EF,
+    "dark": #34113F
+);
+
+// Step 3: Merge the two — your custom overrides will take priority
+$theme-colors: map.merge($default-theme-colors, $custom-colors);
+
+// Step 4: Pass into Bootstrap
+@use "bootstrap/scss/bootstrap" with ($theme-colors: $theme-colors);
+@use "bootstrap-icons/font/bootstrap-icons";

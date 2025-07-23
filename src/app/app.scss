@@ -1,0 +1,6 @@
+@use 'sass:map';
+@use "../styles.scss" as *;
+
+* {
+    background-color: map.get($theme-colors, "light");
+}
