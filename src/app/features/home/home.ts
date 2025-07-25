@@ -1,12 +1,19 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { AppAuthService } from '../../services/appAuthService';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
 export class Home {
-
+  username: string = "";
+constructor (auth:AppAuthService){
+  auth.getUser().subscribe(user => {
+    if (user) {
+      this.username = user.nickname?? "";
+    }
+  });
+}
 }

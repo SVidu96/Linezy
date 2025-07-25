@@ -1,0 +1,13 @@
+<ng-container *ngIf="auth.isAuthenticated$ | async; else loggedOut">
+    <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary" (click)="auth.logout({ logoutParams: { returnTo: document.location.origin } })">
+            Log out
+        </button>
+        <ng-container *ngIf="auth.user$ | async as user">
+            <img [src]="user?.picture" alt="Profile Picture" class="rounded-circle border p-1" width="36" height="36">
+        </ng-container>
+    </div>
+</ng-container>
+<ng-template #loggedOut>
+    <button class="btn btn-primary" (click)="auth.loginWithRedirect()">Log in</button>
+</ng-template>
