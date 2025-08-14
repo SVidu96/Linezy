@@ -7,7 +7,10 @@
                     Discover the best way to manage your tasks and stay productive. Get started now and experience
                     seamless organization.
                 </p>
-                
+                <div *ngIf="testData?.length">
+                    <p *ngFor="let item of testData">{{ item.summary }}</p>
+                </div>
+                <a routerLink="/dashboard" class="btn btn-primary btn-lg">Dashboard</a>
             </div>
         </div>
     </div>

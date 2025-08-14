@@ -26,4 +26,8 @@ export class AppAuthService {
   getUser() {
     return this.auth.user$;
   }
+
+  isAuthenticated(): Observable<boolean> {
+    return this.auth.isAuthenticated$;
+  }
 }

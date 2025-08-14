@@ -8,4 +8,6 @@ export const environment = {
     production: true,
     AUTH0_DOMAIN: 'add-your-auth0-domain-here',
     AUTH0_CLIENT_ID: 'add-your-auth0-client-id-here',
+    API_URL : 'https://api.yourdomain.com',
+    AUTH0_AUDIENCE: 'https://api.yourdomain.com'
 };
