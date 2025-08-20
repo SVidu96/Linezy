@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
+import { permissionGuard } from './guards/permission-guard';
 
 export const routes: Routes = [
     {
@@ -23,6 +24,16 @@ export const routes: Routes = [
         path:'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard),
         canActivate: [authGuard]
+    },
+    {
+        path: 'admin-panel',
+        loadComponent: () => import('./features/admin-panel/admin-panel').then(m => m.AdminPanel),
+        canActivate: [permissionGuard],
+        data: { permissions: ['admin'] }
+    },
+    {
+        path: 'forbidden',
+        loadComponent: () => import('./features/forbidden/forbidden').then(m => m.Forbidden)
     }
     
 ];

@@ -1,63 +1,53 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { IHttpClient } from '../../interfaces/http-client.interface';
 import { ApiResponse, QueryParams } from '../../interfaces/api.interface';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class HttpClientService implements IHttpClient {
-  constructor(private http: HttpClient) { }
+@Injectable({ providedIn: 'root' })
+export class HttpClientService {
+  constructor(private http: HttpClient) {}
 
   get<T>(url: string, params?: QueryParams): Observable<T> {
-    return this.http.get<unknown>(url, { params: this.buildHttpParams(params) })
-      .pipe(
-        map(res => this.extractData<T>(res)),
-        catchError(this.handleError)
-      );
+    return this.http.get<unknown>(url, { params: this.buildHttpParams(params) }).pipe(
+      map(this.extractData<T>),
+      catchError(this.handleError)
+    );
   }
 
   post<T>(url: string, body?: unknown): Observable<T> {
-    return this.http.post<unknown>(url, body)
-      .pipe(
-        map(res => this.extractData<T>(res)),
-        catchError(this.handleError)
-      );
+    return this.http.post<unknown>(url, body).pipe(
+      map(this.extractData<T>),
+      catchError(this.handleError)
+    );
   }
 
   put<T>(url: string, body?: unknown): Observable<T> {
-    return this.http.put<unknown>(url, body)
-      .pipe(
-        map(res => this.extractData<T>(res)),
-        catchError(this.handleError)
-      );
+    return this.http.put<unknown>(url, body).pipe(
+      map(this.extractData<T>),
+      catchError(this.handleError)
+    );
   }
 
   patch<T>(url: string, body?: unknown): Observable<T> {
-    return this.http.patch<unknown>(url, body)
-      .pipe(
-        map(res => this.extractData<T>(res)),
-        catchError(this.handleError)
-      );
+    return this.http.patch<unknown>(url, body).pipe(
+      map(this.extractData<T>),
+      catchError(this.handleError)
+    );
   }
 
   delete<T>(url: string): Observable<T> {
-    return this.http.delete<unknown>(url)
-      .pipe(
-        map(res => this.extractData<T>(res)),
-        catchError(this.handleError)
-      );
+    return this.http.delete<unknown>(url).pipe(
+      map(this.extractData<T>),
+      catchError(this.handleError)
+    );
   }
 
   private buildHttpParams(params?: QueryParams): HttpParams {
     let httpParams = new HttpParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          httpParams = httpParams.set(key, String(value));
-        }
+        if (value != null) httpParams = httpParams.set(key, String(value));
       });
     }
     return httpParams;
@@ -74,36 +64,32 @@ export class HttpClientService implements IHttpClient {
   }
 
   private isApiResponse<T>(obj: unknown): obj is ApiResponse<T> {
-    return typeof obj === 'object' &&
-      obj !== null &&
-      'success' in obj &&
-      'data' in obj;
+    return !!obj && typeof obj === 'object' && 'success' in obj && 'data' in obj;
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
-  console.error('API Error:', error);
+    let errorMessage = 'An unknown error occurred';
 
-  let message = 'An unexpected error occurred';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Client Error: ${error.error.message}`;
+    } else if (typeof error.error === 'string') {
+      errorMessage = error.error;
+    } else if (error.error && typeof error.error === 'object') {
+      errorMessage =
+        error.error.message ||
+        (Array.isArray(error.error.errors) && error.error.errors.join(', ')) ||
+        error.error.title ||
+        errorMessage;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
 
-  const err = error.error;
+    if (error.status) {
+      errorMessage = `Server Error (${error.status}): ${errorMessage}`;
+    }
 
-  if (typeof err === 'string') {
-    message = err;
-  } else if (err && typeof err === 'object') {
-    message =
-      err.message ||
-      (Array.isArray(err.errors) && err.errors.join(', ')) ||
-      err.title ||
-      message;
-  } else if (error.message) {
-    message = error.message;
+    console.error('HTTP Error:', error);
+
+    return throwError(() => new Error(errorMessage));
   }
-
-  if (error.status) {
-    message = `${error.status}: ${message}`;
-  }
-
-  return throwError(() => new Error(message));
-}
-
 }

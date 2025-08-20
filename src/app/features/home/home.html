@@ -10,7 +10,10 @@
                 <div *ngIf="testData?.length">
                     <p *ngFor="let item of testData">{{ item.summary }}</p>
                 </div>
-                <a routerLink="/dashboard" class="btn btn-primary btn-lg">Dashboard</a>
+                <a routerLink="/dashboard" class="btn btn-primary btn-lg m-1">Dashboard</a>
+                @if (isAdmin) {
+                    <a routerLink="/admin-panel" class="btn btn-primary btn-lg m-1">admin-panel</a>
+                }
             </div>
         </div>
     </div>

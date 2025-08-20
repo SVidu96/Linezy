@@ -14,8 +14,9 @@ import { RouterLink } from '@angular/router';
 export class Home {
   username: string = "";
   testData: any[] = [];
-  constructor(auth: AppAuthService, private testService: TestService) {
-    auth.getUser().subscribe(user => {
+  isAdmin: boolean = false;
+  constructor(private auth: AppAuthService, private testService: TestService) {
+    this.auth.getUser().subscribe(user => {
       if (user) {
         this.username = user.nickname ?? "";
       }
@@ -23,6 +24,9 @@ export class Home {
 
     this.getTestData();
 
+    this.auth.getPermissions().subscribe(permissions => {
+      this.isAdmin = permissions.includes('admin');
+    });
   }
 
   getTestData() {
@@ -31,6 +35,7 @@ export class Home {
    })
   }
 
+  
   
 
 }

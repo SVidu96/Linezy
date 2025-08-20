@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './api-services/base-api.service';
-import { IHttpClient } from '../interfaces/http-client.interface';
-import { environment } from '../../../environments/environment';
 import { HttpClientService } from './api-services/http-client.service';
 import { Observable } from 'rxjs';
-import { QueryParams } from '../interfaces/api.interface';
 import { TestModel } from '../../models/datamodels/testmodel';
 
 @Injectable({
