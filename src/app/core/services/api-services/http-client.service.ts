@@ -10,35 +10,35 @@ export class HttpClientService {
 
   get<T>(url: string, params?: QueryParams): Observable<T> {
     return this.http.get<unknown>(url, { params: this.buildHttpParams(params) }).pipe(
-      map(this.extractData<T>),
+      map(res => this.extractData<T>(res)),
       catchError(this.handleError)
     );
   }
 
   post<T>(url: string, body?: unknown): Observable<T> {
     return this.http.post<unknown>(url, body).pipe(
-      map(this.extractData<T>),
+      map(res => this.extractData<T>(res)),
       catchError(this.handleError)
     );
   }
 
   put<T>(url: string, body?: unknown): Observable<T> {
     return this.http.put<unknown>(url, body).pipe(
-      map(this.extractData<T>),
+      map(res => this.extractData<T>(res)),
       catchError(this.handleError)
     );
   }
 
   patch<T>(url: string, body?: unknown): Observable<T> {
     return this.http.patch<unknown>(url, body).pipe(
-      map(this.extractData<T>),
+      map(res => this.extractData<T>(res)),
       catchError(this.handleError)
     );
   }
 
   delete<T>(url: string): Observable<T> {
     return this.http.delete<unknown>(url).pipe(
-      map(this.extractData<T>),
+      map(res => this.extractData<T>(res)),
       catchError(this.handleError)
     );
   }

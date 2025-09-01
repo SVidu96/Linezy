@@ -7,9 +7,13 @@
                     Discover the best way to manage your tasks and stay productive. Get started now and experience
                     seamless organization.
                 </p>
-                <div *ngIf="testData?.length">
-                    <p *ngFor="let item of testData">{{ item.summary }}</p>
-                </div>
+                @if (testData.length>0){
+                    <div>
+                        @for (item of testData; track $index) {
+                            <p>{{ item.summary }}</p>
+                        }
+                    </div>
+                }
                 <a routerLink="/dashboard" class="btn btn-primary btn-lg m-1">Dashboard</a>
                 @if (isAdmin) {
                     <a routerLink="/admin-panel" class="btn btn-primary btn-lg m-1">admin-panel</a>
