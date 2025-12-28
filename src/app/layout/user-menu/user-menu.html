@@ -1,0 +1,20 @@
+<div class="dropdown" data-bs-boundary="viewport">
+    <div class="user-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <div class="user-avatar">
+            <img src="favicon.ico" class="rounded-circle" alt="User Avatar" width="40" height="40">
+        </div>
+    </div>
+    <ul class="dropdown-menu dropdown-menu-end">
+        @if(loggedUser == null){
+            <li><a class="dropdown-item" routerLink="/login">Login</a></li>
+            <li><a class="dropdown-item" routerLink="/signup">Sign Up</a></li>
+        }
+    
+        @else{
+            <li><h6 class="dropdown-header">{{displayName}}</h6></li>
+            <li><a class="dropdown-item" routerLink="/profile">Profile</a></li>
+            <li><a class="dropdown-item" routerLink="/settings">Settings</a></li>
+            <li><button class="dropdown-item" (click)="logout()">Logout</button></li>
+        }
+    </ul>
+</div>
