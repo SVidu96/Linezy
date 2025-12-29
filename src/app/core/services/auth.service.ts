@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { LoginRequest, LoginResponse } from '../models/auth.model';
+import { LoginRequest, LoginResponse, SignupRequest } from '../models/auth.model';
 import { AuthApiService } from './api-services/auth-api.service';
 import { StorageService } from './storage.service';
 import { UserService } from './user.service';
@@ -22,7 +22,7 @@ export class AuthService {
   initAuth(): Observable<void> {
     const token = this.storageService.getAccessToken();
     if (!token) {
-      this.logout();
+      this.clearAuthentication();
       return of(void 0);
     }
 
@@ -36,13 +36,13 @@ export class AuthService {
           switchMap(() => this.userService.loadCurrentUser()),
           tap(user => user && this.isAuthenticatedSubject.next(true)),
           catchError(() => {
-            this.logout();
+            this.clearAuthentication();
             return of(void 0);
           }),
           map(() => void 0)
         );
       } else {
-        this.logout();
+        this.clearAuthentication();
         return of(void 0);
       }
     } else {
@@ -64,6 +64,14 @@ export class AuthService {
     );
   }
 
+  signup(payload: SignupRequest): Observable<any> {
+    return this.authApiService.signup(payload).pipe(
+      catchError(error => {
+        throw error;
+      })
+    );
+  }
+
   refreshToken(): Observable<LoginResponse> {
     const refreshToken = this.storageService.getRefreshToken();
     if (!refreshToken) {
@@ -73,7 +81,7 @@ export class AuthService {
       tap(response => this.validateLoginResponse(response)),
       tap(response => this.handleAuthSuccess(response)),
       catchError(error => {
-        this.logout();
+        this.clearAuthentication();
         throw error;
       })
     );
@@ -92,9 +100,8 @@ export class AuthService {
   }
 
   logout(): void {
-    this.storageService.clearStorage();
-    this.userService.setCurrentUser(null);
-    this.isAuthenticatedSubject.next(false);
+    this.authApiService.logout().subscribe();
+    this.clearAuthentication();
   }
 
   private validateLoginResponse(response: LoginResponse): void {
@@ -108,5 +115,11 @@ export class AuthService {
     this.storageService.setRefreshToken(response.refreshToken);
     this.storageService.setAccessTokenExpiry(response.accessTokenExpires);
     this.isAuthenticatedSubject.next(true);
+  }
+
+  private clearAuthentication(): void {
+    this.storageService.clearStorage();
+    this.userService.setCurrentUser(null);
+    this.isAuthenticatedSubject.next(false);
   }
 }

@@ -4,10 +4,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { User } from '../../core/models/user.model';
 import { Subscription } from 'rxjs';
+import { LoadingOverlayComponent } from "../loading-overlay/loading-overlay";
 
 @Component({
   selector: 'app-user-menu',
-  imports: [RouterLink],
+  imports: [RouterLink, LoadingOverlayComponent],
   templateUrl: './user-menu.html',
   styleUrl: './user-menu.scss'
 })
@@ -15,6 +16,7 @@ export class UserMenu implements OnInit, OnDestroy {
   displayName: string = '';
   loggedUser: User | null = null;
   private userSubscription: Subscription | null = null;
+  loading: boolean = false;
 
   constructor(private authService: AuthService,
     private router: Router,
@@ -35,7 +37,9 @@ export class UserMenu implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.loading = true;
     this.authService.logout();
+    this.loading = false;
     this.router.navigate(['/home']);
   }
 }

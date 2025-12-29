@@ -2,28 +2,33 @@
     <div class="card shadow">
         <div class="card-body">
             <h3 class="card-title text-center mb-4">Sign Up</h3>
-            <form>
+            <form [formGroup]="signupform">
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+                    <input type="text" class="form-control" id="name" placeholder="Enter your name" required formControlName="fullName">
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" required formControlName="email">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Password" required minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}" hint="Password must be at least 8 characters and include uppercase, lowercase, and a number.">
+                    <input type="password" class="form-control" id="password" placeholder="Password" required hint="Password must be at least 8 characters and include uppercase, lowercase, and a number." formControlName="password">
                     <div class="form-text">
                         Password must be at least 8 characters and include uppercase, lowercase, and a number.
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="repassword" class="form-label">Re-enter Password</label>
-                    <input type="password" class="form-control" id="repassword" placeholder="Re-enter password" required minlength="8">
+                    <input type="password" class="form-control" id="repassword" placeholder="Re-enter password" required formControlName="confirmPassword">
                 </div>
+                @if(errorMessage){
+                <div class="alert alert-danger" role="alert">
+                    {{ errorMessage }}
+                </div>
+                }
                 <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                    <button type="button" class="btn btn-primary" (click)="signup()">Sign Up</button>
                 </div>
                 <div class="text-center">
                     <a routerLink="/login" class="small">Go to Login</a>
@@ -32,3 +37,4 @@
         </div>
     </div>
 </section>
+<app-loading-overlay [isLoading]="loading"></app-loading-overlay>
