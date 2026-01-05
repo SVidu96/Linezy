@@ -10,4 +10,7 @@ import { Header } from "./layout/header/header";
 })
 export class App {
   protected readonly title = signal('Linezy');
+  ngAfterViewInit(){
+    document.getElementById('bootstrap-loader')?.remove();
+  }
 }

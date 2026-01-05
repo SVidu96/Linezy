@@ -5,22 +5,22 @@
             <form [formGroup]="signupform">
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
-                    <input type="text" class="form-control" id="name" placeholder="Enter your name" required formControlName="fullName">
+                    <input type="text" class="form-control" id="name" placeholder="Enter your name" required formControlName="fullName" autocomplete="name">
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter email" required formControlName="email">
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" required formControlName="email" autocomplete="email">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Password" required hint="Password must be at least 8 characters and include uppercase, lowercase, and a number." formControlName="password">
+                    <input type="password" class="form-control" id="password" placeholder="Password" required hint="Password must be at least 8 characters and include uppercase, lowercase, and a number." formControlName="password" autocomplete="new-password">
                     <div class="form-text">
                         Password must be at least 8 characters and include uppercase, lowercase, and a number.
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="repassword" class="form-label">Re-enter Password</label>
-                    <input type="password" class="form-control" id="repassword" placeholder="Re-enter password" required formControlName="confirmPassword">
+                    <input type="password" class="form-control" id="repassword" placeholder="Re-enter password" required formControlName="confirmPassword" autocomplete="new-password">
                 </div>
                 @if(errorMessage){
                 <div class="alert alert-danger" role="alert">

@@ -5,6 +5,7 @@ import { UserService } from '../../core/services/user.service';
 import { User } from '../../core/models/user.model';
 import { Subscription } from 'rxjs';
 import { LoadingOverlayComponent } from "../loading-overlay/loading-overlay";
+import { RoutePath } from '../../app.routes';
 
 @Component({
   selector: 'app-user-menu',
@@ -40,6 +41,6 @@ export class UserMenu implements OnInit, OnDestroy {
     this.loading = true;
     this.authService.logout();
     this.loading = false;
-    this.router.navigate(['/home']);
+    this.router.navigate([RoutePath.Login]);
   }
 }

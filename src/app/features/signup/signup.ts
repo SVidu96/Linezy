@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { LoadingOverlayComponent } from '../../layout/loading-overlay/loading-overlay';
 import { SignupRequest } from '../../core/models/auth.model';
 import { environment } from '../../../environments/environment';
+import { RoutePath } from '../../app.routes';
 
 @Component({
   selector: 'app-signup',
@@ -40,7 +41,7 @@ export class Signup implements OnDestroy {
 
     this.authService.signup(this.getSignupPayload()).subscribe({
       next: (response) => {
-        this.router.navigate(['/login']);
+        this.router.navigate([RoutePath.Login]);
         this.loading = false;
       },
       error: (error) => {

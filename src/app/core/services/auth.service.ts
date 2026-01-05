@@ -1,17 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { LoginRequest, LoginResponse, SignupRequest } from '../models/auth.model';
 import { AuthApiService } from './api-services/auth-api.service';
 import { StorageService } from './storage.service';
 import { UserService } from './user.service';
+import { LoginRequest, LoginResponse, SignupRequest } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  private readonly _isAuthenticated$ = new BehaviorSubject<boolean>(false);
+  readonly isAuthenticated$ = this._isAuthenticated$.asObservable();//public attrb
 
   constructor(
     private authApiService: AuthApiService,
@@ -20,56 +21,30 @@ export class AuthService {
   ) {}
 
   initAuth(): Observable<void> {
-    const token = this.storageService.getAccessToken();
-    if (!token) {
-      this.clearAuthentication();
-      return of(void 0);
+    if (!this.hasValidAccessToken()) {
+      return this.tryRefreshOrLogout();
     }
 
-    const expiry = this.storageService.getAccessTokenExpiry();
-    const isExpired = !expiry || new Date(expiry).getTime() < Date.now();
+    this._isAuthenticated$.next(true);
 
-    if (isExpired) {
-      const refreshToken = this.storageService.getRefreshToken();
-      if (refreshToken) {
-        return this.refreshToken().pipe(
-          switchMap(() => this.userService.loadCurrentUser()),
-          tap(user => user && this.isAuthenticatedSubject.next(true)),
-          catchError(() => {
-            this.clearAuthentication();
-            return of(void 0);
-          }),
-          map(() => void 0)
-        );
-      } else {
+    return this.userService.loadCurrentUser().pipe(
+      catchError(() => {
         this.clearAuthentication();
         return of(void 0);
-      }
-    } else {
-      this.isAuthenticatedSubject.next(true);
-      return this.userService.loadCurrentUser().pipe(
-        catchError(() => of(void 0)),
-        map(() => void 0)
-      );
-    }
+      }),
+      map(() => void 0)
+    );
   }
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.authApiService.login(payload).pipe(
-      tap(response => this.validateLoginResponse(response)),
-      tap(response => this.handleAuthSuccess(response)),
-      catchError(error => {
-        throw error;
-      })
+      tap(res => this.validateLoginResponse(res)),
+      tap(res => this.handleAuthSuccess(res))
     );
   }
 
   signup(payload: SignupRequest): Observable<any> {
-    return this.authApiService.signup(payload).pipe(
-      catchError(error => {
-        throw error;
-      })
-    );
+    return this.authApiService.signup(payload);
   }
 
   refreshToken(): Observable<LoginResponse> {
@@ -77,26 +52,11 @@ export class AuthService {
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
+
     return this.authApiService.refreshToken(refreshToken).pipe(
-      tap(response => this.validateLoginResponse(response)),
-      tap(response => this.handleAuthSuccess(response)),
-      catchError(error => {
-        this.clearAuthentication();
-        throw error;
-      })
+      tap(res => this.validateLoginResponse(res)),
+      tap(res => this.handleAuthSuccess(res))
     );
-  }
-
-  hasValidAccessToken(): boolean {
-    const token = this.storageService.getAccessToken();
-    const expiry = this.storageService.getAccessTokenExpiry();
-
-    if (!token || !expiry || expiry.trim() === '') {
-      return false;
-    }
-
-    const expiryTime = new Date(expiry).getTime();
-    return !isNaN(expiryTime) && expiryTime > Date.now();
   }
 
   logout(): void {
@@ -104,22 +64,51 @@ export class AuthService {
     this.clearAuthentication();
   }
 
-  private validateLoginResponse(response: LoginResponse): void {
-    if (!response?.accessToken || !response?.refreshToken || !response?.accessTokenExpires) {
-      throw new Error('Invalid response: missing required fields');
+  hasValidAccessToken(): boolean {
+    const token = this.storageService.getAccessToken();
+    const expiry = this.storageService.getAccessTokenExpiry();
+
+    if (!token || !expiry) return false;
+
+    return new Date(expiry).getTime() > Date.now();
+  }
+
+  // ---------------- private helpers ----------------
+
+  private tryRefreshOrLogout(): Observable<void> {
+    const refreshToken = this.storageService.getRefreshToken();
+    if (!refreshToken) {
+      this.clearAuthentication();
+      return of(void 0);
     }
+
+    return this.refreshToken().pipe(
+      switchMap(() => this.userService.loadCurrentUser()),
+      tap(() => this._isAuthenticated$.next(true)),
+      catchError(() => {
+        this.clearAuthentication();
+        return of(void 0);
+      }),
+      map(() => void 0)
+    );
   }
 
   private handleAuthSuccess(response: LoginResponse): void {
     this.storageService.setAccessToken(response.accessToken);
     this.storageService.setRefreshToken(response.refreshToken);
     this.storageService.setAccessTokenExpiry(response.accessTokenExpires);
-    this.isAuthenticatedSubject.next(true);
+    this._isAuthenticated$.next(true);
+  }
+
+  private validateLoginResponse(response: LoginResponse): void {
+    if (!response?.accessToken || !response?.refreshToken || !response?.accessTokenExpires) {
+      throw new Error('Invalid login response');
+    }
   }
 
   private clearAuthentication(): void {
     this.storageService.clearStorage();
     this.userService.setCurrentUser(null);
-    this.isAuthenticatedSubject.next(false);
+    this._isAuthenticated$.next(false);
   }
 }
